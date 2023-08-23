@@ -18,29 +18,33 @@ func NewCourse(db *sql.DB) *Course {
 	return &Course{db: db}
 }
 
-func (c *Course) Create(name string, description string, categoryID string) (Course, error) {
+func (c *Course) Create(name string, description string, categoryID string) (*Course, error) {
 	id := uuid.New().String()
 	_, err := c.db.Exec("INSERT INTO courses (id, name, description, category_id) VALUES ($1, $2, $3, $4)",
 		id, name, description, categoryID)
 	if err != nil {
 		return nil, err
 	}
-	return Course{ID: id, Name: name, Description: description}, nil
+	return &Course{
+		ID:          id,
+		Name:        name,
+		Description: description,
+	}, nil
 }
 
 func (c *Course) FindAll() ([]Course, error) {
-	rows, err := c.db.Query("SELECT id, name, description FROM categories")
+	rows, err := c.db.Query("SELECT id, name, description FROM courses")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	categories := []Course{}
+	courses := []Course{}
 	for rows.Next() {
-		var id, name, description string
-		if err := rows.Scan(&id, &name, &description); err != nil {
+		var id, name, description, categoryID string
+		if err := rows.Scan(&id, &name, &description, &categoryID); err != nil {
 			return nil, err
 		}
-		categories = append(categories, Course{ID: id, Name: name, Description: description})
+		courses = append(courses, Course{ID: id, Name: name, Description: description, CategoryID: categoryID})
 	}
-	return categories, nil
+	return courses, nil
 }

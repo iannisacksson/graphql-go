@@ -26,6 +26,7 @@ func main() {
 
 	// Criando arquivo de categoria e injetando a conexão com o banco
 	categoryDb := database.NewCategory(db)
+	courseDb := database.NewCourse(db)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -35,6 +36,7 @@ func main() {
 	// Injetar no resolver a categoryDB
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
 		CategoryDB: categoryDb,
+		CourseDB:   courseDb,
 	}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
